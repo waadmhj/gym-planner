@@ -153,20 +153,30 @@ document.querySelectorAll(".auth-tab").forEach(tab => {
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const errEl = document.getElementById("loginError");
+  const btn = e.target.querySelector("button[type=submit]");
+  if (btn.disabled) return; // guard against double-submit
   errEl.textContent = "";
+  btn.disabled = true;
   try {
     await api("/auth/login", { method: "POST", body: {
       email: document.getElementById("li_email").value,
       password: document.getElementById("li_password").value,
     }});
     await boot();
-  } catch (err) { errEl.textContent = t("err_login"); }
+  } catch (err) {
+    errEl.textContent = t("err_login");
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const errEl = document.getElementById("registerError");
+  const btn = e.target.querySelector("button[type=submit]");
+  if (btn.disabled) return; // guard against double-submit creating two requests
   errEl.textContent = "";
+  btn.disabled = true;
   try {
     await api("/auth/register", { method: "POST", body: {
       name: document.getElementById("re_name").value,
@@ -176,6 +186,8 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     await boot();
   } catch (err) {
     errEl.textContent = err.data && err.data.error === "email_taken" ? t("err_email_taken") : t("err_register");
+  } finally {
+    btn.disabled = false;
   }
 });
 
