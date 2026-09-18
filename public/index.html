@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gym Training Planner | جدول النادي الرياضي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ===================== AUTH ===================== -->
+<div id="authScreen" class="onboarding-screen">
+  <div class="onboarding-card">
+    <div class="onboarding-sticker">🏋️‍♀️</div>
+    <h1 data-i18n="app_title">Gym Training Planner</h1>
+    <p class="onboarding-sub" data-i18n="app_sub">جدول النادي الرياضي</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" data-i18n="tab_login">تسجيل الدخول</button>
+      <button class="auth-tab" data-tab="register" data-i18n="tab_register">إنشاء حساب</button>
+    </div>
+
+    <form id="loginForm" class="auth-form">
+      <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input type="email" id="li_email" required></div>
+      <div class="field"><label data-i18n="password">كلمة المرور</label><input type="password" id="li_password" required></div>
+      <p class="auth-error" id="loginError"></p>
+      <button type="submit" class="btn-primary btn-full" data-i18n="login_btn">دخول</button>
+    </form>
+
+    <form id="registerForm" class="auth-form hidden">
+      <div class="field"><label data-i18n="name">الاسم</label><input type="text" id="re_name" required></div>
+      <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input type="email" id="re_email" required></div>
+      <div class="field"><label data-i18n="password">كلمة المرور (٦ أحرف على الأقل)</label><input type="password" id="re_password" minlength="6" required></div>
+      <p class="auth-error" id="registerError"></p>
+      <button type="submit" class="btn-primary btn-full" data-i18n="register_btn">إنشاء الحساب ✨</button>
+    </form>
+
+    <button class="lang-link" id="authLangToggle">EN</button>
+  </div>
+</div>
+
+<!-- ===================== PROFILE ONBOARDING ===================== -->
+<div id="profileScreen" class="onboarding-screen hidden">
+  <div class="onboarding-card">
+    <div class="onboarding-sticker">🎀</div>
+    <h1 data-i18n="onb_title">أخبرينا عن نفسك</h1>
+    <form id="profileForm">
+      <div class="field-row">
+        <div class="field"><label data-i18n="onb_age">العمر</label><input type="number" id="ob_age" min="10" max="90"></div>
+        <div class="field"><label data-i18n="onb_height">الطول (سم)</label><input type="number" id="ob_height" min="100" max="230"></div>
+      </div>
+      <div class="field"><label data-i18n="onb_weight">الوزن (كجم)</label><input type="number" id="ob_weight" min="30" max="250" step="0.1"></div>
+      <div class="field">
+        <label data-i18n="onb_goal">الهدف (يمكن اختيار أكثر من واحد)</label>
+        <div class="goal-chips" id="goalChips">
+          <button type="button" class="chip" data-goal="muscle" data-i18n="goal_muscle">بناء عضل</button>
+          <button type="button" class="chip" data-goal="loss" data-i18n="goal_loss">خسارة وزن</button>
+          <button type="button" class="chip" data-goal="tone" data-i18n="goal_tone">تنسيق الجسم</button>
+          <button type="button" class="chip" data-goal="endurance" data-i18n="goal_endurance">لياقة وتحمل</button>
+          <button type="button" class="chip" data-goal="maintain" data-i18n="goal_maintain">المحافظة على الوزن</button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="onb_days">كم يوم بالأسبوع تتمرنين؟</label>
+        <input type="number" id="ob_daysPerWeek" min="1" max="7" value="3">
+      </div>
+      <button type="submit" class="btn-primary btn-full" data-i18n="onb_continue">التالي: بناء الجدول ⬅</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== DAY-BY-DAY SCHEDULE WIZARD ===================== -->
+<div id="wizardScreen" class="onboarding-screen hidden">
+  <div class="onboarding-card wizard-card">
+    <div class="onboarding-sticker">📋</div>
+    <h1 data-i18n="wiz_title">لنبني جدولك التدريبي</h1>
+    <p class="onboarding-sub" id="wizDayLabel"></p>
+
+    <div class="field-row">
+      <div class="field"><label data-i18n="wiz_day_name_ar">اسم اليوم (عربي)</label><input type="text" id="wiz_dayNameAr" placeholder="مثال: أرجل وجلوتس"></div>
+      <div class="field"><label data-i18n="wiz_day_name_en">اسم اليوم (English)</label><input type="text" id="wiz_dayNameEn" placeholder="e.g. Legs & Glutes"></div>
+    </div>
+    <button class="btn-secondary" id="wizSaveDayBtn" data-i18n="wiz_save_day">حفظ اسم اليوم</button>
+
+    <hr class="wizard-divider">
+
+    <h3 class="wizard-subtitle" data-i18n="wiz_exercises_title">تمارين هذا اليوم</h3>
+    <div id="wizExerciseList" class="wizard-exercise-list"></div>
+
+    <div class="wizard-exercise-form" id="wizExerciseForm">
+      <div class="field-row">
+        <div class="field"><label data-i18n="wiz_ex_name_ar">اسم التمرين (عربي)</label><input type="text" id="wex_nameAr"></div>
+        <div class="field"><label data-i18n="wiz_ex_name_en">Exercise name (English)</label><input type="text" id="wex_nameEn"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label data-i18n="wiz_ex_equipment_ar">الجهاز (عربي)</label><input type="text" id="wex_equipAr"></div>
+        <div class="field"><label data-i18n="wiz_ex_equipment_en">Equipment (English)</label><input type="text" id="wex_equipEn"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label data-i18n="sets">المجموعات</label><input type="text" id="wex_sets" placeholder="4"></div>
+        <div class="field"><label data-i18n="reps">التكرار</label><input type="text" id="wex_reps" placeholder="10"></div>
+        <div class="field"><label data-i18n="rest">الراحة</label><input type="text" id="wex_rest" placeholder="1 minute"></div>
+      </div>
+      <button type="button" class="btn-secondary" id="wizAddExerciseBtn" data-i18n="wiz_add_exercise">+ إضافة تمرين</button>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn-primary" id="wizNextDayBtn" data-i18n="wiz_next_day">اليوم التالي ⬅</button>
+      <button class="btn-primary btn-finish hidden" id="wizFinishBtn" data-i18n="wiz_finish">إنهاء وابدئي 🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP SHELL ===================== -->
+<div id="app" class="app-shell hidden">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-sticker">🏋️‍♀️</span>
+      <div>
+        <div class="brand-title" data-i18n="brand_title">Gym Training Planner</div>
+        <div class="brand-sub" data-i18n="brand_sub">جدول النادي الرياضي</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="themeToggle" class="icon-btn" title="Dark / Light">🌙</button>
+      <button id="langToggle" class="icon-btn lang-btn">EN</button>
+      <button id="logoutBtn" class="icon-btn" title="Logout">🚪</button>
+    </div>
+  </header>
+
+  <nav class="sidenav" id="sidenav">
+    <button class="nav-item active" data-view="dashboard"><span>🏠</span><span data-i18n="nav_dashboard">لوحة التحكم</span></button>
+    <button class="nav-item" data-view="calendar"><span>📅</span><span data-i18n="nav_calendar">التقويم</span></button>
+    <button class="nav-item" data-view="workouts"><span>🏋️</span><span data-i18n="nav_workouts">التمارين</span></button>
+    <button class="nav-item" data-view="weight"><span>⚖️</span><span data-i18n="nav_weight">الوزن</span></button>
+    <button class="nav-item" data-view="measurements"><span>📏</span><span data-i18n="nav_measurements">القياسات</span></button>
+    <button class="nav-item" data-view="progress"><span>📈</span><span data-i18n="nav_progress">التقدم</span></button>
+  </nav>
+
+  <main class="main-content">
+
+    <section id="view-dashboard" class="view active">
+      <h2 class="view-title" data-i18n="dash_title">أهلاً بعودتك 💜</h2>
+      <div class="hero-cards">
+        <div class="hero-card"><div class="hero-icon">⚖️</div><div class="hero-label" data-i18n="hero_weight">الوزن الحالي</div><div class="hero-value" id="heroWeight">--</div></div>
+        <div class="hero-card"><div class="hero-icon">🎯</div><div class="hero-label" data-i18n="hero_goal">الهدف</div><div class="hero-value" id="heroGoal">--</div></div>
+        <div class="hero-card"><div class="hero-icon">🔥</div><div class="hero-label" data-i18n="hero_streak">التزام الأسبوع</div><div class="hero-value" id="heroStreak">--</div></div>
+      </div>
+      <h3 class="section-title" data-i18n="dash_week_title">جدول الأسبوع</h3>
+      <div class="day-cards" id="weekOverview"></div>
+    </section>
+
+    <section id="view-workouts" class="view">
+      <div id="workoutsList">
+        <div class="view-title-row">
+          <h2 class="view-title" data-i18n="nav_workouts">التمارين</h2>
+          <button class="btn-secondary" id="editScheduleBtn" data-i18n="edit_schedule">✏️ تعديل الجدول</button>
+        </div>
+        <div class="day-cards" id="allDaysList"></div>
+      </div>
+      <div id="workoutDetail" class="hidden">
+        <button class="back-btn" id="backToWorkouts">← <span data-i18n="back">رجوع</span></button>
+        <h2 class="view-title" id="dayDetailTitle"></h2>
+        <div class="progress-line">
+          <div class="progress-track"><div class="progress-fill" id="dayProgressFill"></div></div>
+          <span id="dayProgressLabel">0 / 0</span>
+        </div>
+        <div id="exerciseList" class="exercise-list"></div>
+      </div>
+    </section>
+
+    <section id="view-calendar" class="view">
+      <h2 class="view-title" data-i18n="nav_calendar">تقويم التمارين</h2>
+      <div class="calendar-header">
+        <button id="calPrev" class="icon-btn">‹</button>
+        <div id="calMonthLabel"></div>
+        <button id="calNext" class="icon-btn">›</button>
+      </div>
+      <div class="calendar-legend">
+        <span><i class="dot dot-workout"></i><span data-i18n="cal_workout">يوم تمرين</span></span>
+        <span><i class="dot dot-done"></i><span data-i18n="cal_done">مكتمل</span></span>
+        <span><i class="dot dot-rest"></i><span data-i18n="cal_rest">راحة</span></span>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+      <div class="commitment-card"><span data-i18n="cal_commitment">نسبة الالتزام</span><strong id="commitmentPct">0%</strong></div>
+    </section>
+
+    <section id="view-weight" class="view">
+      <h2 class="view-title" data-i18n="nav_weight">متابعة الوزن</h2>
+      <form id="weightForm" class="inline-form">
+        <input type="date" id="weightDate" required>
+        <input type="number" id="weightValue" step="0.1" placeholder="kg" required>
+        <button type="submit" class="btn-primary" data-i18n="add_weight">+ إضافة وزن</button>
+      </form>
+      <canvas id="weightChart" height="220"></canvas>
+      <table class="data-table" id="weightTable">
+        <thead><tr><th data-i18n="col_date">التاريخ</th><th data-i18n="col_weight">الوزن</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="view-measurements" class="view">
+      <h2 class="view-title" data-i18n="nav_measurements">قياسات الجسم</h2>
+      <form id="measureForm" class="measure-form">
+        <input type="date" id="measureDate" required>
+        <div class="measure-grid">
+          <div class="field"><label data-i18n="m_chest">الصدر</label><input type="number" step="0.1" id="m_chest"></div>
+          <div class="field"><label data-i18n="m_waist">الخصر</label><input type="number" step="0.1" id="m_waist"></div>
+          <div class="field"><label data-i18n="m_abdomen">البطن</label><input type="number" step="0.1" id="m_abdomen"></div>
+          <div class="field"><label data-i18n="m_hips">الأرداف</label><input type="number" step="0.1" id="m_hips"></div>
+          <div class="field"><label data-i18n="m_thigh">الفخذ</label><input type="number" step="0.1" id="m_thigh"></div>
+          <div class="field"><label data-i18n="m_arm">الذراع</label><input type="number" step="0.1" id="m_arm"></div>
+        </div>
+        <button type="submit" class="btn-primary" data-i18n="add_measure">+ حفظ القياسات</button>
+      </form>
+      <div class="measure-summary" id="measureSummary"></div>
+    </section>
+
+    <section id="view-progress" class="view">
+      <h2 class="view-title" data-i18n="nav_progress">التقدم</h2>
+      <div class="progress-grid">
+        <div class="progress-card">
+          <h4 data-i18n="p_weight">الوزن</h4>
+          <div class="progress-stat"><span data-i18n="p_current">الحالي</span><strong id="pgWeightCurrent">--</strong></div>
+          <div class="progress-stat"><span data-i18n="p_start">البداية</span><strong id="pgWeightStart">--</strong></div>
+          <div class="progress-stat"><span data-i18n="p_change">التغيير</span><strong id="pgWeightChange">--</strong></div>
+        </div>
+        <div class="progress-card">
+          <h4 data-i18n="p_measurements">القياسات</h4>
+          <div id="pgMeasureList" class="progress-measure-list"></div>
+        </div>
+        <div class="progress-card progress-card-circle">
+          <h4 data-i18n="p_consistency">الالتزام بالتمارين</h4>
+          <div class="progress-circle-wrap">
+            <svg viewBox="0 0 120 120" class="progress-circle">
+              <circle cx="60" cy="60" r="52" class="pc-bg"/>
+              <circle cx="60" cy="60" r="52" class="pc-fill" id="pcFill"/>
+            </svg>
+            <div class="progress-circle-label" id="pcLabel">0/0</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="bottomnav" id="bottomnav">
+    <button class="bn-item active" data-view="dashboard">🏠</button>
+    <button class="bn-item" data-view="calendar">📅</button>
+    <button class="bn-item" data-view="workouts">🏋️</button>
+    <button class="bn-item" data-view="weight">⚖️</button>
+    <button class="bn-item" data-view="measurements">📏</button>
+    <button class="bn-item" data-view="progress">📈</button>
+  </nav>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div id="videoModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <button class="modal-close" data-close="videoModal">✕</button>
+    <h3 id="videoModalTitle"></h3>
+    <div class="video-frame" id="videoFrame"></div>
+    <div class="video-url-edit">
+      <input type="url" id="videoUrlInput" placeholder="https://...">
+      <button class="btn-secondary" id="saveVideoUrlBtn" data-i18n="save_link">حفظ الرابط</button>
+    </div>
+  </div>
+</div>
+
+<div id="exerciseModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <button class="modal-close" data-close="exerciseModal">✕</button>
+    <h3 id="exModalName"></h3>
+    <div class="ex-modal-grid" id="exModalGrid"></div>
+    <button class="btn-secondary" id="exModalVideoBtn">🎥 <span data-i18n="watch_technique">مشاهدة الشرح</span></button>
+  </div>
+</div>
+
+<div id="celebrationToast" class="celebration-toast hidden"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
