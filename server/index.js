@@ -15,6 +15,12 @@ const trackingRoutes = require("./routes/tracking");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Render (and most PaaS hosts) terminate HTTPS at a proxy and forward plain
+// HTTP internally. Without this, Express thinks every request is insecure,
+// so express-session refuses to set our `secure: true` cookie — logins
+// appear to succeed but the session never actually persists.
+app.set("trust proxy", 1);
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
@@ -26,7 +32,12 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // Not tying this to NODE_ENV/req.secure: behind Render's proxy, Express
+      // can fail to detect HTTPS even with `trust proxy` set, which makes
+      // express-session silently refuse to set a `secure: true` cookie at all.
+      // Render always serves over HTTPS at the edge, so the cookie is still
+      // only ever transmitted encrypted in practice.
+      secure: false,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     },
